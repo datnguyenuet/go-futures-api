@@ -1,0 +1,61 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API Gateway",
+        "title": "API Gateway",
+        "contact": {
+            "name": "futures",
+            "url": "https://google.com/",
+            "email": "futures@mail.com"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/positions/{position_id}": {
+            "get": {
+                "description": "Get single position by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Get position detail by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "position id",
+                        "name": "position_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Position"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Position": {
+            "type": "object",
+            "required": [
+                "position_id"
+            ],
+            "properties": {
+                "position_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

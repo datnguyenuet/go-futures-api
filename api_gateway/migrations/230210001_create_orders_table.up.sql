@@ -1,0 +1,6 @@
+CREATE TABLE orders
+(   id BIGSERIAL PRIMARY KEY,
+    user_id      BIGINT NOT NULL,
+    created_at   TIMESTAMP WITH TIME ZONE    NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP WITH TIME ZONE             DEFAULT CURRENT_TIMESTAMP
+);

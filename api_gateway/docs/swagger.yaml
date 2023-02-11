@@ -1,0 +1,40 @@
+basePath: /api/v1
+definitions:
+  models.Position:
+    properties:
+      position_id:
+        type: integer
+    required:
+    - position_id
+    type: object
+info:
+  contact:
+    email: futures@mail.com
+    name: futures
+    url: https://google.com/
+  description: API Gateway
+  title: API Gateway
+  version: "1.0"
+paths:
+  /positions/{position_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get single position by id
+      parameters:
+      - description: position id
+        in: query
+        name: position_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Position'
+      summary: Get position detail by id
+      tags:
+      - Positions
+swagger: "2.0"

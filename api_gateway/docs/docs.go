@@ -22,6 +22,11 @@ const docTemplate = `{
     "paths": {
         "/positions/{position_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get single position by id",
                 "consumes": [
                     "application/json"
@@ -38,8 +43,14 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "position id",
                         "name": "position_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "position type",
+                        "name": "position_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -64,6 +75,13 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

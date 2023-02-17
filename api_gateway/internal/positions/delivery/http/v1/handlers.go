@@ -22,26 +22,30 @@ func NewPositionsHandlers(group *gin.RouterGroup, logger *zap.SugaredLogger) *Po
 	}
 }
 
-// Register GetPositionDetail
+// GetPositionDetail Register GetPositionDetail
 // @Tags Positions
 // @Summary Get position detail by id
 // @Description Get single position by id
 // @Accept json
 // @Produce json
-// @Param position_id query integer true "position id"
+// @Param position_id path integer true "position id"
+// @Param position_type query string false "position type"
 // @Success 200 {object} models.Position
 // @Router /positions/{position_id} [get]
+// @Security BearerAuth
 func (p *PositionsHandlers) GetPositionDetail() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "PositionsHandlers.GetPositionDetail")
 		fmt.Println(ctx)
 		defer span.Finish()
 
-		id, err := strconv.Atoi(c.Query("position_id"))
+		id, err := strconv.Atoi(c.Param("position_id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		positionType, err := strconv.Atoi(c.Query("position_type"))
+		fmt.Println(positionType)
 		c.JSON(http.StatusOK, &models.Position{PositionId: int64(id)})
 	}
 }

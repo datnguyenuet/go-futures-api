@@ -15,19 +15,26 @@ import (
 // @contact.url https://google.com/
 // @contact.email futures@mail.com
 // @BasePath /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
-	logger := zap.S()
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync()
+	zap.ReplaceGlobals(logger)
+
+	l := zap.S()
 	tracer, closer, err := jaeger.InitJaeger()
 	if err != nil {
-		logger.Fatal("cannot create tracer", err)
+		l.Fatal("cannot create tracer", err)
 	}
 
-	logger.Info("Jaeger connected")
+	l.Info("Jaeger connected")
 
 	opentracing.SetGlobalTracer(tracer)
 	defer closer.Close()
-	logger.Info("Opentracing connected")
+	l.Info("Opentracing connected")
 
-	s := server.NewServer(logger, tracer)
-	logger.Fatal(s.Run())
+	s := server.NewServer(l, tracer)
+	l.Fatal(s.Run())
 }

@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  session_microservice:
+    container_name: api_gateway_microservice
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+      - "7070:7070"
+    environment:
+      - PORT=5000
+    restart: always
+    volumes:
+      - ./api_gateway:/app

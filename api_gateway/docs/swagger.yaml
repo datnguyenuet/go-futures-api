@@ -23,10 +23,14 @@ paths:
       description: Get single position by id
       parameters:
       - description: position id
-        in: query
+        in: path
         name: position_id
         required: true
         type: integer
+      - description: position type
+        in: query
+        name: position_type
+        type: string
       produces:
       - application/json
       responses:
@@ -34,7 +38,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Position'
+      security:
+      - BearerAuth: []
       summary: Get position detail by id
       tags:
       - Positions
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

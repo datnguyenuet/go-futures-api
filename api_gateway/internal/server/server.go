@@ -9,6 +9,7 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 	"go-futures-api/internal/interceptors"
+	"go-futures-api/internal/middleware"
 	positionsHandler "go-futures-api/internal/positions/delivery/http/v1"
 	"go.uber.org/zap"
 	"net/http"
@@ -40,15 +41,18 @@ func (s *Server) Run() error {
 	validate := validator.New()
 
 	go func() {
-		s.logger.Infof("Server is listening on PORT: %s", "5000")
-		if err := http.ListenAndServe("5000", http.DefaultServeMux); err != nil {
+		s.logger.Infof("Server is listening on PORT: %s", "5555")
+		if err := http.ListenAndServe("localhost:5555", http.DefaultServeMux); err != nil {
 			s.logger.Errorf("Error PPROF ListenAndServe: %s", err)
 		}
 	}()
 
+	mw := middleware.NewMiddlewareManager(s.logger)
+
 	v1 := s.gin.Group("/api/v1")
 	ordersGroup := v1.Group("/positions")
 	positionsGroup := v1.Group("/positions")
+	positionsGroup.Use(mw.JWTMiddleware())
 
 	positionHandlers := positionsHandler.NewPositionsHandlers(positionsGroup, s.logger)
 	positionHandlers.MapRoutes()
@@ -77,6 +81,10 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) MapRoutes() {
+	err := s.gin.SetTrustedProxies([]string{"172.16.0.131"})
+	if err != nil {
+		return
+	}
 	s.gin.TrustedPlatform = gin.PlatformGoogleAppEngine
 	// Or set your own trusted request header for another trusted proxy service
 	// Don't set it to any suspect request header, it's unsafe

@@ -1,0 +1,19 @@
+syntax = "proto3";
+option go_package = ".;userService";
+
+package userService;
+
+service UserService {
+  rpc FindOne (UserById) returns (User);
+};
+
+message UserById {
+  string id = 1;
+};
+
+message User {
+  string id = 1;
+  string email = 6;
+  string authenticator_verify_status = 26;
+  string account_lv = 30;
+};

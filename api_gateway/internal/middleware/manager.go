@@ -1,13 +1,18 @@
 package middleware
 
 import (
+	authUseCase "go-futures-api/internal/auth"
 	"go.uber.org/zap"
 )
 
 type Manager struct {
-	logger *zap.SugaredLogger
+	logger      *zap.SugaredLogger
+	authUseCase authUseCase.UseCase
 }
 
-func NewMiddlewareManager(logger *zap.SugaredLogger) *Manager {
-	return &Manager{logger: logger}
+func NewMiddlewareManager(logger *zap.SugaredLogger, authUseCase authUseCase.UseCase) *Manager {
+	return &Manager{
+		logger:      logger,
+		authUseCase: authUseCase,
+	}
 }

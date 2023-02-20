@@ -8,9 +8,12 @@ import (
 	"github.com/opentracing/opentracing-go"
 	swaggerfiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	authUseCase "go-futures-api/internal/auth/usecase"
 	"go-futures-api/internal/interceptors"
 	"go-futures-api/internal/middleware"
 	positionsHandler "go-futures-api/internal/positions/delivery/http/v1"
+	"go-futures-api/pkg/grpc_client"
+	userService "go-futures-api/proto/auth"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -47,7 +50,11 @@ func (s *Server) Run() error {
 		}
 	}()
 
-	mw := middleware.NewMiddlewareManager(s.logger)
+	authServiceConn, err := grpc_client.NewGRPCClientServiceConn(ctx, im, ":5005")
+	authServiceClient := userService.NewUserServiceClient(authServiceConn)
+	authUC := authUseCase.NewAuthUseCase(s.logger, authServiceClient)
+
+	mw := middleware.NewMiddlewareManager(s.logger, authUC)
 
 	v1 := s.gin.Group("/api/v1")
 	ordersGroup := v1.Group("/positions")

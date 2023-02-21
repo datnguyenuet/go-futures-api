@@ -50,7 +50,10 @@ func (s *Server) Run() error {
 		}
 	}()
 
-	authServiceConn, err := grpc_client.NewGRPCClientServiceConn(ctx, im, ":5005")
+	authServiceConn, err := grpc_client.NewGRPCClientServiceConn(ctx, im, ":5678")
+	if err != nil {
+		return err
+	}
 	authServiceClient := userService.NewUserServiceClient(authServiceConn)
 	authUC := authUseCase.NewAuthUseCase(s.logger, authServiceClient)
 
@@ -59,7 +62,7 @@ func (s *Server) Run() error {
 	v1 := s.gin.Group("/api/v1")
 	ordersGroup := v1.Group("/positions")
 	positionsGroup := v1.Group("/positions")
-	positionsGroup.Use(mw.JWTMiddleware())
+	positionsGroup.Use(mw.AuthMiddleware())
 
 	positionHandlers := positionsHandler.NewPositionsHandlers(positionsGroup, s.logger)
 	positionHandlers.MapRoutes()
@@ -68,8 +71,8 @@ func (s *Server) Run() error {
 	//commentHandlers.MapRoutes()
 
 	s.MapRoutes()
-	err := s.gin.Run(":5555")
-	if err != nil {
+
+	if err := s.gin.Run(":5555"); err != nil {
 		return err
 	}
 

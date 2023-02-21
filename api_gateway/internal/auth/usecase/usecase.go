@@ -21,6 +21,13 @@ func NewAuthUseCase(logger *zap.SugaredLogger, authService authService.UserServi
 
 func (a *authUseCase) FindOne(ctx context.Context, userId string) (*models.User, error) {
 	userRes, err := a.authService.FindOne(ctx, &authService.UserById{Id: userId})
+	if err != nil {
+		return nil, err
+	}
+
+	if userRes.Id == "" {
+		return nil, nil
+	}
 
 	user, err := models.UserFromProto(userRes)
 	if err != nil {

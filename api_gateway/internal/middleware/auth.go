@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	httpErrors "go-futures-api/pkg/http_errors"
 	"go.uber.org/zap"
 	"net/http"
@@ -66,33 +64,27 @@ func (m *Manager) AuthMiddleware() gin.HandlerFunc {
 		user, err := m.authUseCase.FindOne(ctx, userId)
 		if err != nil {
 			m.logger.Error("auth middleware", err.Error())
+			m.respondWithError(c, http.StatusBadRequest, httpErrors.ErrBadRequest)
+			return
+		}
+
+		if user == nil {
+			m.logger.Error("auth middleware", zap.String("headerParts", "NotFound user"))
 			m.respondWithError(c, http.StatusUnauthorized, httpErrors.ErrUnauthorized)
+			return
 		}
 
 		if user.AccountLv < 2 {
-			m.logger.Error("auth middleware", zap.String("headerJWT", err.Error()))
+			m.logger.Error("auth middleware", zap.String("headerJWT", "Not enough permissions"))
 			m.respondWithError(c, http.StatusForbidden, httpErrors.ErrForbidden)
+			return
 		}
 
 		if user.AuthenticatorVerifyStatus != 1 {
+			m.logger.Error("auth middleware", zap.String("headerJWT", "User not verified"))
 			m.respondWithError(c, http.StatusUnauthorized, httpErrors.ErrUnauthorized)
+			return
 		}
 		c.Next()
 	}
-}
-
-func (m *Manager) verifyUser(ctx context.Context, userId string) error {
-	user, err := m.authUseCase.FindOne(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	if user.AccountLv < 2 {
-		return errors.New("AccountLv")
-	}
-
-	if user.AuthenticatorVerifyStatus != 1 {
-		return errors.New("AuthenticatorVerifyStatus")
-	}
-	return nil
 }

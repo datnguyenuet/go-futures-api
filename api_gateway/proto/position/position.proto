@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = ".;positionService";
+
+package position;
+
+message GetPositionListRequest {
+  int32 page = 1;
+  int32 per_page = 2;
+  string user_id = 3;
+  string status = 4;
+  string order_by = 5;
+}
+
+message PositionDetail {
+  string id = 1;
+  string user_id = 2;
+  string symbol = 3;
+  string leverage = 4;
+  string entry_price = 5;
+  string size = 6;
+  string liquidation_price = 7;
+  string margin = 8;
+  string take_profit_price = 9;
+  string stop_loss_price = 10;
+  string status = 11;
+}
+
+message  GetPositionListResponse {
+  int32 version = 1;
+  string created_at = 2;
+  string status_code = 3;
+  string msg = 4;
+  repeated PositionDetail data = 5;
+}
+
+message GetPositionByIdRequest {
+  string id = 1;
+}
+
+message GetPositionByIdResponse {
+  int32 version = 1;
+  string created_at = 2;
+  string status_code = 3;
+  string msg = 4;
+  PositionDetail data = 5;
+}
+
+message UpdatePositionPayload {
+  string entry_price = 1;
+  string size = 2;
+  string liquidation_price = 3;
+  string margin = 4;
+  string take_profit_price = 5;
+  string stop_loss_price = 6;
+  string status = 7;
+}
+
+message UpdatePositionRequest {
+  string id = 1;
+  UpdatePositionPayload payload = 2;
+}
+
+service PositionService {
+  rpc GetPositionList(GetPositionListRequest) returns (GetPositionListResponse);
+  rpc GetPositionById(GetPositionByIdRequest) returns (GetPositionByIdResponse);
+  rpc UpdatePosition(UpdatePositionRequest) returns (GetPositionByIdResponse);
+};
+

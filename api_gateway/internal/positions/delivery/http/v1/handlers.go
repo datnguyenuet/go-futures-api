@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
+	"go-futures-api/internal/middleware"
 	"go-futures-api/internal/models"
 	"go.uber.org/zap"
 	"net/http"
@@ -38,6 +39,14 @@ func (p *PositionsHandlers) GetPositionDetail() gin.HandlerFunc {
 		span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "PositionsHandlers.GetPositionDetail")
 		fmt.Println(ctx)
 		defer span.Finish()
+
+		ctxUser, ok := ctx.Value(middleware.RequestCtxUser{}).(*models.User)
+		fmt.Println(ctxUser)
+		if !ok || ctxUser == nil {
+			return
+		}
+
+		fmt.Println(ctxUser)
 
 		id, err := strconv.Atoi(c.Param("position_id"))
 		if err != nil {

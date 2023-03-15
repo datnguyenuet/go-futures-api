@@ -33,6 +33,7 @@ func main() {
 
 	opentracing.SetGlobalTracer(tracer)
 	defer closer.Close()
+
 	l.Info("Opentracing connected")
 
 	s := server.NewServer(l, tracer)

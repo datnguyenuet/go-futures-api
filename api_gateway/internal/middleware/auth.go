@@ -1,12 +1,16 @@
 package middleware
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 	httpErrors "go-futures-api/pkg/http_errors"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
 )
+
+type RequestCtxUser struct{}
 
 func (m *Manager) JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -54,11 +58,14 @@ func (m *Manager) respondWithError(c *gin.Context, code int, message interface{}
 
 func (m *Manager) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx := c.Request.Context()
+		span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "middleware.AuthMiddleware")
+		defer span.Finish()
+
 		userId := c.Request.Header.Get("x-bce-uid")
 		if userId == "" {
 			m.logger.Error("auth middleware", zap.String("headerParts", "Missing x-bce-uid"))
 			m.respondWithError(c, http.StatusUnauthorized, httpErrors.ErrUnauthorized)
+			return
 		}
 
 		user, err := m.authUseCase.FindOne(ctx, userId)
@@ -80,11 +87,15 @@ func (m *Manager) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if user.AuthenticatorVerifyStatus != 1 {
-			m.logger.Error("auth middleware", zap.String("headerJWT", "User not verified"))
-			m.respondWithError(c, http.StatusUnauthorized, httpErrors.ErrUnauthorized)
-			return
-		}
+		//if user.AuthenticatorVerifyStatus != 1 {
+		//	m.logger.Error("auth middleware", zap.String("headerJWT", "User not verified"))
+		//	m.respondWithError(c, http.StatusUnauthorized, httpErrors.ErrUnauthorized)
+		//	return
+		//}
+
+		ctx = context.WithValue(c.Request.Context(), RequestCtxUser{}, user)
+		c.Request = c.Request.WithContext(ctx)
+
 		c.Next()
 	}
 }

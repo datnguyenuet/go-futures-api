@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/opentracing/opentracing-go"
 	"go-futures-api/internal/models"
 	authService "go-futures-api/proto/auth"
 	"go.uber.org/zap"
@@ -20,6 +21,9 @@ func NewAuthUseCase(logger *zap.SugaredLogger, authService authService.UserServi
 }
 
 func (a *authUseCase) FindOne(ctx context.Context, userId string) (*models.User, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "authUseCase.FindOne")
+	defer span.Finish()
+
 	userRes, err := a.authService.FindOne(ctx, &authService.UserById{Id: userId})
 	if err != nil {
 		return nil, err
